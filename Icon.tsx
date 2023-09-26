@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
-import './style.css';
 import { SVGInjector } from '@tanem/svg-injector';
 
 export interface colorList {
@@ -41,11 +40,12 @@ export const Icon: React.FC<{
   };
   triggeringObj?: React.RefObject<any>;
   size?: string;
-}> = ({ src, colors, triggeringObj, size = '100%' }) => {
+}> = ({ src, triggeringObj, size = '100%', ...rest }) => {
+  const colors = useRef(rest.colors);
   const [svg, setSvg] = useState('');
   const [isHovered, setIsHovered] = useState(false);
-  const background = getIconWithColor(svg, colors.active);
-  const hoverBackground = getIconWithColor(svg, colors.hover);
+  const background = getIconWithColor(svg, colors.current.active);
+  const hoverBackground = getIconWithColor(svg, colors.current.hover);
 
   React.useLayoutEffect(() => {
     const nonReactiveElement = document.createElement('svg');
@@ -74,16 +74,15 @@ export const Icon: React.FC<{
   };
 
   React.useEffect(() => {
-    console.log('here');
     if (triggeringObj) {
-      if (colors.hover) {
+      if (colors.current.hover) {
         triggeringObj.current.addEventListener('mouseenter', onEnter);
         triggeringObj.current.addEventListener('mouseleave', onLeave);
       }
     }
     return () => {
       if (triggeringObj) {
-        if (colors.hover) {
+        if (colors.current.hover) {
           triggeringObj.current.removeEventListener('mouseenter', onEnter);
           triggeringObj.current.removeEventListener('mouseleave', onLeave);
         }
